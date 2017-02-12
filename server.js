@@ -10,9 +10,7 @@ var index = 1;
 
 app.use(bodyParser.json());
 
-app.get('/', function(req, res) {
-	res.send('TODO root');
-});
+app.get('/', function(req, res) {res.send('TODO root');});
 
 // GET /todos?completed=true&q=work
 app.get('/todos', function(req, res) {
@@ -114,6 +112,23 @@ app.post('/todos', function(req, res) {
 // DELETE /todo/:id
 app.delete('/todo/:id', function(req, res) {
 	var id = parseInt(req.params.id);
+
+	db.todo.destroy({
+		where: {
+			id: id
+		}
+	}).then(function(rowsDeleted) {
+		if (rowsDeleted === 0) {
+			res.status(404).json({
+				error: 'No todo with id: ' + id
+			});
+		} else {
+			res.status(204).send();
+		}
+	}).catch(function(e) {
+		res.status(500).send();
+	});
+	/*
 	var matched = _.findWhere(todos, {"id": id});
 	
 	if (!matched) {
@@ -122,6 +137,7 @@ app.delete('/todo/:id', function(req, res) {
 		todos = _.without(todos, matched);
 		res.json(matched);
 	}
+	*/
 });
 
 // PUT /todo/:id
