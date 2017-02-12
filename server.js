@@ -142,35 +142,31 @@ app.delete('/todo/:id', function(req, res) {
 
 // PUT /todo/:id
 app.put('/todo/:id', function(req, res) {
+	var id = parseInt(req.params.id);
 	var body = _.pick(req.body, "description", "completed");
 	var validAttr = {};
 
 	if (body.hasOwnProperty("completed")) {
-		if (_.isBoolean(body.completed)) {
-			validAttr.completed = body.completed;
-		} else {
-			return res.status(400).send();
-		}
+		validAttr.completed = body.completed;
 	}
 
 	if (body.hasOwnProperty("description")) {
-		if ((_.isString(body.description)) && (body.description.trim().length > 0)) {
-			validAttr.description = body.description;
+		validAttr.description = body.description;
+	}
+
+	db.todo.findById(id).then(function(todo) {
+		if (todo) {
+			todo.update(validAttr).then(function(todo) {
+				res.json(todo.toJSON());
+			}, function(e) {
+				res.status(400).json(e);
+			});
 		} else {
-			return res.status(400).send();
+			res.status(404).send();
 		}
-	}
-
-	var id = parseInt(req.params.id);
-	var matched = _.findWhere(todos, {"id": id});
-
-	if (!matched) {
-		return res.status(404).send();
-	}
-
-	_.extend(matched, validAttr);
-
-	res.json(matched);
+	}, function(e) {
+		res.status(500).send();
+	});
 });
 
 db.sequelize.sync().then(function() {
