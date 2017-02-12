@@ -58,6 +58,39 @@ app.delete('/todo/:id', function(req, res) {
 	}
 });
 
+// PUT /todo/:id
+app.put('/todo/:id', function(req, res) {
+	var body = _.pick(req.body, "description", "completed");
+	var validAttr = {};
+
+	if (body.hasOwnProperty("completed")) {
+		if (_.isBoolean(body.completed)) {
+			validAttr.completed = body.completed;
+		} else {
+			return res.status(400).send();
+		}
+	}
+
+	if (body.hasOwnProperty("description")) {
+		if ((_.isString(body.description)) && (body.description.trim().length > 0)) {
+			validAttr.description = body.description;
+		} else {
+			return res.status(400).send();
+		}
+	}
+
+	var id = parseInt(req.params.id);
+	var matched = _.findWhere(todos, {"id": id});
+
+	if (!matched) {
+		return res.status(404).send();
+	}
+
+	_.extend(matched, validAttr);
+
+	res.json(matched);
+});
+
 app.listen(PORT, function() {
 	console.log('Listening to port ' + PORT);
 });
