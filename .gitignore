@@ -1,2 +1,3 @@
 node_modules/
 play/basic-sqlite-db.sqlite
+data/*.sqlite
