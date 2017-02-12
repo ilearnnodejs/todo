@@ -13,7 +13,7 @@ app.get('/', function(req, res) {
 	res.send('TODO root');
 });
 
-// GET /todos?completed=true
+// GET /todos?completed=true&q=work
 app.get('/todos', function(req, res) {
 	var queryParams = req.query;
 	var filtedTodos = todos;
@@ -23,6 +23,14 @@ app.get('/todos', function(req, res) {
 			filtedTodos = _.where(filtedTodos, {completed: true});
 		} else {
 			filtedTodos = _.where(filtedTodos, {completed: false});
+		}
+	}
+
+	if (queryParams.hasOwnProperty('q')) {
+		if (_.isString(queryParams.q) && queryParams.q.trim().length > 0) {
+			filtedTodos = _.filter(filtedTodos, function(todo) {
+				return todo.description.toLowerCase().indexOf(queryParams.q.toLowerCase()) > -1;
+			});
 		}
 	}
 
