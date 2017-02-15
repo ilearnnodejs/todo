@@ -19,9 +19,41 @@ var Todo = sequelize.define('todo', {
 	}
 });
 
-sequelize.sync({force: true}).then(function() { // force to recreate tables
+var User = sequelize.define('user', {
+	name: Sequelize.STRING
+});
+
+Todo.belongsTo(User);
+User.hasMany(Todo);
+
+sequelize.sync().then(function() { // force to recreate tables
 	console.log('everything is synced');
 
+	User.findById(1).then(function(user) {
+		user.getTodos({
+			where: {
+				completed: false
+			}
+		}).then(function(todos) {
+			todos.forEach(function(todo) {
+				console.log(todo.toJSON());
+			});
+		});
+	});
+	/*
+	User.create({
+		name: 'Harry'
+	}).then(function() {
+		return Todo.create({
+			description: 'Clean'
+		});
+	}).then(function(todo) {
+		User.findById(1).then(function (user) {
+			user.addTodo(todo);
+		});
+	});
+	*/
+	/*
 	Todo.create({
 		description: 'Walk 1',
 		completed: false
@@ -50,4 +82,5 @@ sequelize.sync({force: true}).then(function() { // force to recreate tables
 	}).catch(function(e) {
 		console.log(e);
 	});
+	*/
 });
